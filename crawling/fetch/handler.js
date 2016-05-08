@@ -12,7 +12,8 @@ var docClient = new aws.DynamoDB.DocumentClient();
 // データ準備
 var now = new Date();
 var data = {
-  "created_at" : now,
+  "created_at" : now.toISOString(),
+  "profile"    : {}
 };
 
 
@@ -21,12 +22,12 @@ module.exports.handler = function(event, context, cb) {
   var form  = {};
   docClient.get({
     TableName: "dynamo-crawler-form", Key: { "key": "username" }
-  }, function(err, data) {
-    form["username"] = data.Item.value;
+  }, function(err, result) {
+    form["username"] = result.Item.value;
     docClient.get({
       TableName: "dynamo-crawler-form", Key: { "key": "password" }
-    }, function(err, data) {
-      form["password"] = data.Item.value;
+    }, function(err, result) {
+      form["password"] = result.Item.value;
 
       request({
         url: "https://id.nintendo.net/login",
@@ -36,15 +37,15 @@ module.exports.handler = function(event, context, cb) {
         // ランキング
         request("https://splatoon.nintendo.net/ranking", function (error, response, body) {
           var $ = cheerio.load(body);
-          data["score-regular"]   = $("#ranking").data("score-regular");
-          data["score-gachi"]     = $("#ranking").data("score-gachi");
-          data["score-festival"]  = $("#ranking").data("score-festival");
+          data["score_regular"]   = $("#ranking").data("score-regular");
+          data["score_gachi"]     = $("#ranking").data("score-gachi");
+          data["score_festival"]  = $("#ranking").data("score-festival");
+          data["hash_id"]         = $("#ranking").data("my-hashed-id");
 
           // そうび
           request("https://splatoon.nintendo.net/profile", function (error, response, body) {
             var $ = cheerio.load(body);
 
-            data['profile'] = {};
             data['profile']['name'] = $('.profile-username').text();
             data['profile']['rank'] = $('.typography-equip-rank').next('p').text();
             data['profile']['udemae'] = $('.typography-equip-udemae').next('p').text();
@@ -60,7 +61,7 @@ module.exports.handler = function(event, context, cb) {
             // ステージ情報
             request("https://splatoon.nintendo.net/schedule", function (error, response, body) {
               var $ = cheerio.load(body);
-              data["schedule-map"] = {
+              data["schedule_map"] = {
                 "regular": [], "gachi": [], "festival": []
               }
               var saved = false;
@@ -76,7 +77,7 @@ module.exports.handler = function(event, context, cb) {
                   rule = "regular";
                 } else if ($(this).find(".match-type .icon-earnest-match").length) {
                   rule = "gachi";
-                  data["schedule-gachi-rule"] = $(this).find(".match-rule").text();
+                  data["schedule_gachi_rule"] = $(this).find(".match-rule").text();
                 } else if ($(this).find(".match-type .icon-festival-match").length) {
                   // TODO 検証されていないコード
                   rule = "festival";
@@ -84,12 +85,13 @@ module.exports.handler = function(event, context, cb) {
 
                 // ステージ名を取得
                 $(this).find(".map-name").each(function(){
-                  data["schedule-map"][rule].push($(this).text());
+                  data["schedule_map"][rule].push($(this).text());
                   saved = true;
                 });
               });
 
               console.log(data);
+              docClient.put({ TableName : 'dynamo-crawler-fetched', Item: data }, function(err, data) {});
             });
           });
         });

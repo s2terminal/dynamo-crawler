@@ -10,9 +10,9 @@ var dynamo = new aws.DynamoDB();
 var docClient = new aws.DynamoDB.DocumentClient();
 
 // データ準備
-var now = new Date();
+var created_at = new Date();
 var data = {
-  "created_at" : now.toISOString(),
+  "created_at" : created_at.toISOString(),
   "profile"    : {}
 };
 
@@ -89,7 +89,18 @@ module.exports.handler = function(event, context, cb) {
                 });
               });
 
-              docClient.put({ TableName : 'dynamo-crawler-fetched', Item: data }, function(err, data) {});
+              // フレンドリスト
+              request("https://splatoon.nintendo.net/", function (error, response, body) {
+                var $ = cheerio.load(body);
+
+                // 正確な最終更新日時の取得
+                created_at = new Date($("#last-update").data("last-update"));
+                if (created_at.toString() != "Invalid Date") {
+                  data["created_at"] = created_at.toISOString();
+                }
+
+                docClient.put({ TableName : 'dynamo-crawler-fetched', Item: data }, function(err, data) {});
+              });
             });
           });
         });

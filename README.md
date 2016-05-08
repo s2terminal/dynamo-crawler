@@ -45,8 +45,12 @@ crawling/fetch でデータを取得しDynamoDBに保存することができる
 
 ![dynamodb](https://raw.githubusercontent.com/s2terminal/dynamo-crawler/images/dynamodb-screen-shot-01.png)
 
-
-
 ## License
 
 [MIT](https://opensource.org/licenses/MIT)。
+
+### リンク
+
+- [イカリング利用規約](https://splatoon.nintendo.net/site_policy) ※ログインすると導線が無くなる
+- [Splatoon（スプラトゥーン）公式サイト](https://www.nintendo.co.jp/wiiu/agmj/)
+- [Amazon DynamoDB （フルマネージドNo SQLデータベース） | AWS](http://aws.amazon.com/jp/dynamodb/)

@@ -1,6 +1,8 @@
 # ダイナモクローラーβ
 
-Splatoon[イカリング](https://splatoon.nintendo.net/)のデータをDynamoDBに保存する。
+Splatoon公式サービス[イカリング](https://splatoon.nintendo.net/)のデータをクローリングしてDynamoDBに保存する。
+
+イカリングのランキングスコアを随時保存することで、ブキ・ステージ・ルール毎の戦績をカジュアルに把握することを目的としている。
 
 [Serverless Framework](https://github.com/serverless/serverless)を用いてAWS上にLambda、API Gateway、DynamoDBを配置する。
 
@@ -41,6 +43,10 @@ docClient.put({
 
 crawling/fetch でデータを取得しDynamoDBに保存することができる。
 
+![dynamodb](https://raw.githubusercontent.com/s2terminal/dynamo-crawler/images/dynamodb-screen-shot-01.png)
+
+
+
 ## License
 
-[MIT](https://opensource.org/licenses/MIT)
+[MIT](https://opensource.org/licenses/MIT)。

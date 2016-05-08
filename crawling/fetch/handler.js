@@ -94,10 +94,18 @@ module.exports.handler = function(event, context, cb) {
                 var $ = cheerio.load(body);
 
                 // 正確な最終更新日時の取得
-                created_at = new Date($("#last-update").data("last-update"));
+                created_at = new Date($("#last-update").data("last-update")*1000);
                 if (created_at.toString() != "Invalid Date") {
                   data["created_at"] = created_at.toISOString();
                 }
+
+                // ブキ名の取得
+                var weaponIdRegexp = new RegExp("/([^/]*)-.*.png$");
+                for (var i = 0; i < data['profile']['equips'].length; i++) {
+                  var elem = data['profile']['equips'][i];
+                  var weaponId = elem["image"].match(weaponIdRegexp);
+                  elem["name"] = $('[value="'+weaponId[1]+'"]').first().text();
+                };
 
                 docClient.put({ TableName : 'dynamo-crawler-fetched', Item: data }, function(err, data) {});
               });

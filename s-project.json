@@ -1,5 +1,7 @@
 {
   "name": "dynamo-crawler",
   "custom": {},
-  "plugins": []
+  "plugins": [
+    "serverless-optimizer-plugin"
+  ]
 }

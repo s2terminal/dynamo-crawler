@@ -55,7 +55,6 @@ module.exports.handler = function(event, context, cb) {
               dataEquip['image'] = $(this).find('.equip-painted-weapon-img').data('retina-image');
               dataEquip['point'] = $(this).find('.equip-painted-point-number').text();
               data['profile']['equips'].push(dataEquip);
-              console.log(dataEquip); // テスト出力
             });
 
             // ステージ情報
@@ -90,7 +89,6 @@ module.exports.handler = function(event, context, cb) {
                 });
               });
 
-              console.log(data);
               docClient.put({ TableName : 'dynamo-crawler-fetched', Item: data }, function(err, data) {});
             });
           });

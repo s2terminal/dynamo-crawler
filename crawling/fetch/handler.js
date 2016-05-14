@@ -39,7 +39,7 @@ module.exports.handler = function(event, context, cb) {
           var $ = cheerio.load(body);
           data["score_regular"]   = $("#ranking").data("score-regular");
           data["score_gachi"]     = $("#ranking").data("score-gachi");
-          data["score_festival"]  = $("#ranking").data("score-festival");
+          data["score_festival"]  = $("#ranking").data("score-festival"); // TODO: フェス中には取得できない。
           data["hash_id"]         = $("#ranking").data("my-hashed-id");
 
           // そうび
@@ -77,9 +77,11 @@ module.exports.handler = function(event, context, cb) {
                 } else if ($(this).find(".match-type .icon-earnest-match").length) {
                   rule = "gachi";
                   data["schedule_gachi_rule"] = $(this).find(".match-rule").text();
-                } else if ($(this).find(".match-type .icon-festival-match").length) {
-                  // TODO 検証されていないコード
+                } else if ($(this).hasClass(".festival-stage-list").length) {
                   rule = "festival";
+                }
+                if (rule == "") {
+                  return true;
                 }
 
                 // ステージ名を取得

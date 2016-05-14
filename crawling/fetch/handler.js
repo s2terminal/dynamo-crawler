@@ -77,7 +77,7 @@ module.exports.handler = function(event, context, cb) {
                 } else if ($(this).find(".match-type .icon-earnest-match").length) {
                   rule = "gachi";
                   data["schedule_gachi_rule"] = $(this).find(".match-rule").text();
-                } else if ($(this).hasClass(".festival-stage-list").length) {
+                } else if ($(this).hasClass("festival-stage-list")) {
                   rule = "festival";
                 }
                 if (rule == "") {
@@ -109,7 +109,19 @@ module.exports.handler = function(event, context, cb) {
                   elem["name"] = $('[value="'+weaponId[1]+'"]').first().text();
                 };
 
-                docClient.put({ TableName : 'dynamo-crawler-fetched', Item: data }, function(err, data) {});
+                // rankingのJSON部分
+                request("https://splatoon.nintendo.net/ranking/index.json", function (error, response, body) {
+                  var ranking = JSON.parse(body);
+
+                  // 自分のフェスのスコアはJSONからしか取れない
+                  for (var i = 0; i < ranking['festival'].length; i++) {
+                    if (ranking['festival'][i]['hashed_id'] == data['hash_id']) {
+                      data["score_festival"]  = ranking['festival'][i]['score'].join('');
+                    }
+                  }
+
+                  docClient.put({ TableName : 'dynamo-crawler-fetched', Item: data }, function(err, data) {});
+                });
               });
             });
           });
